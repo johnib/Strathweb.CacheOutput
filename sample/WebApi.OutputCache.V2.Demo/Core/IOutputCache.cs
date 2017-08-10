@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace WebApi.OutputCache.V2.Demo.Core
 {
@@ -28,7 +27,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// </summary>
         /// <param name="key">The cache key</param>
         /// <returns></returns>
-        Task<T> Get(string key);
+        T Get(string key);
 
         /// <summary>
         /// Removes the cache entry of the provided key

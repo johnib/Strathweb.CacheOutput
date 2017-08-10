@@ -48,11 +48,11 @@ namespace WebApi.OutputCache.V2.Demo.Core
             return _memoryCache.Contains(key);
         }
 
-        public Task<T> Get(string key)
+        public T Get(string key)
         {
             if (Contains(key))
             {
-                return Task.FromResult((T) _memoryCache.Get(key));
+                return (T) _memoryCache.Get(key);
             }
 
             throw new KeyNotFoundException(key);
