@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Runtime.Caching;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
@@ -14,6 +18,7 @@ namespace WebApi.OutputCache.V2.Demo
     public class SimpleCacheFilter : ActionFilterAttribute
     {
         private static readonly MemoryCache MemoryCache = MemoryCache.Default;
+        private static readonly MediaTypeHeaderValue ContentType = MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
         private readonly TimeSpan _cacheTime;
 
         public SimpleCacheFilter(TimeSpan cacheTime)
@@ -38,8 +43,10 @@ namespace WebApi.OutputCache.V2.Demo
 
             if (MemoryCache.Contains(cacheKey))
             {
-                string cachedResponse = (string) MemoryCache.Get(cacheKey);
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.NotModified, cachedResponse);
+                byte[] cachedResponse = (byte[]) MemoryCache.Get(cacheKey);
+                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.NotModified);
+                actionContext.Response.Content = new ByteArrayContent(cachedResponse);
+                actionContext.Response.Content.Headers.ContentType = ContentType;
             }
         }
 
@@ -53,7 +60,7 @@ namespace WebApi.OutputCache.V2.Demo
             CancellationToken cancellationToken)
         {
             string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
-            string content = await actionExecutedContext.Response.Content.ReadAsStringAsync();
+            byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
             DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
 
             MemoryCache.Set(cacheKey, content, cacheExpiration);
