@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
@@ -14,13 +13,16 @@ namespace WebApi.OutputCache.V2.Demo.Core
 {
     public class SimpleCacheFilter : ActionFilterAttribute
     {
-        private static readonly MemoryCache MemoryCache = MemoryCache.Default;
         private static readonly MediaTypeHeaderValue ContentType = MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+        private static readonly InMemoryOutputCache<byte[]> InMemoryCache = new InMemoryOutputCache<byte[]>();
+
         private readonly TimeSpan _cacheTime;
+        private readonly IOutputCache<byte[]> _cache;
 
         public SimpleCacheFilter(TimeSpan cacheTime)
         {
             _cacheTime = cacheTime;
+            _cache = InMemoryCache;
         }
 
         public SimpleCacheFilter(long cacheTimeSeconds) : this(TimeSpan.FromSeconds(cacheTimeSeconds))
@@ -38,9 +40,9 @@ namespace WebApi.OutputCache.V2.Demo.Core
         {
             string cacheKey = GetCacheKey(actionContext);
 
-            if (MemoryCache.Contains(cacheKey))
+            if (_cache.Contains(cacheKey))
             {
-                byte[] cachedResponse = (byte[]) MemoryCache.Get(cacheKey);
+                byte[] cachedResponse = await _cache.Get(cacheKey);
                 actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.NotModified);
                 actionContext.Response.Content = new ByteArrayContent(cachedResponse);
                 actionContext.Response.Content.Headers.ContentType = ContentType;
@@ -53,14 +55,13 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// <param name="actionExecutedContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext,
-            CancellationToken cancellationToken)
+        public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
         {
             string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
             byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
             DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
+                _cache.Add(cacheKey, content, cacheExpiration);
 
-            MemoryCache.Set(cacheKey, content, cacheExpiration);
         }
 
         private static string GetCacheKey(HttpActionContext actionContext)
