@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
-using WebApi.OutputCache.Core.Cache;
 
 namespace WebApi.OutputCache.V2.Demo
 {
@@ -9,7 +8,7 @@ namespace WebApi.OutputCache.V2.Demo
     {
         public static void Main(string[] args)
         {
-            HttpSelfHostConfiguration config = new HttpSelfHostConfiguration("http://localhost:8080");
+            HttpSelfHostConfiguration config = new HttpSelfHostConfiguration("http://localhost:8000");
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
@@ -18,7 +17,9 @@ namespace WebApi.OutputCache.V2.Demo
             );
 
             HttpSelfHostServer server = new HttpSelfHostServer(config);
-            config.CacheOutputConfiguration().RegisterCacheOutputProvider(() => new MemoryCacheDefault());
+//            config.CacheOutputConfiguration().RegisterCacheOutputProvider(() => new MemoryCacheDefault());
+
+
             server.OpenAsync().Wait();
 
             Console.ReadKey();
