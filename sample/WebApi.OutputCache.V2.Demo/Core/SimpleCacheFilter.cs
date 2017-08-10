@@ -87,7 +87,6 @@ namespace WebApi.OutputCache.V2.Demo.Core
                 .Select(kv => $"{kv.Key}={kv.Value}"));
 
             var cacheKey = string.Join("-", controllerName, actionName, queryParams);
-            Console.WriteLine(cacheKey);
 
             return cacheKey;
         }
