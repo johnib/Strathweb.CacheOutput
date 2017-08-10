@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{944DCBA5-777A-4BE8-A1A3-1EA0924D8B70}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +25,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.OutputCache.Core", "src\WebApi.OutputCache.Core\WebApi.OutputCache.Core.csproj", "{3E45FA0B-C465-4DE9-9BC3-40A606B73E84}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.OutputCache.Core.Tests", "test\WebApi.OutputCache.Core.Tests\WebApi.OutputCache.Core.Tests.csproj", "{44F519D6-E825-442C-A112-B5C4404EAA44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.OutputCache.Demo.Tests", "WebApi.OutputCache.Demo.Tests\WebApi.OutputCache.Demo.Tests.csproj", "{25996B4D-EC31-49CA-B7F3-26081B01E99A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,10 @@ Global
 		{44F519D6-E825-442C-A112-B5C4404EAA44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44F519D6-E825-442C-A112-B5C4404EAA44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44F519D6-E825-442C-A112-B5C4404EAA44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25996B4D-EC31-49CA-B7F3-26081B01E99A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25996B4D-EC31-49CA-B7F3-26081B01E99A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25996B4D-EC31-49CA-B7F3-26081B01E99A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25996B4D-EC31-49CA-B7F3-26081B01E99A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,5 +68,6 @@ Global
 		{FC585541-1F28-4D49-BCD9-1A08A90B2C66} = {1644F771-3A1F-40A4-80AA-CDB22B334F1F}
 		{3E45FA0B-C465-4DE9-9BC3-40A606B73E84} = {CEA1F6A7-ACA0-4B5B-BEE0-23AEB7E30A7D}
 		{44F519D6-E825-442C-A112-B5C4404EAA44} = {70946FFB-B575-4B2F-A174-3BDD93100097}
+		{25996B4D-EC31-49CA-B7F3-26081B01E99A} = {1644F771-3A1F-40A4-80AA-CDB22B334F1F}
 	EndGlobalSection
 EndGlobal
