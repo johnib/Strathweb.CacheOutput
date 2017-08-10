@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\InMemoryOutputCache.cs" />
     <Compile Include="IgnoreController.cs" />
     <Compile Include="Core\SimpleCacheFilter.cs" />
     <Compile Include="Teams2Controller.cs" />
