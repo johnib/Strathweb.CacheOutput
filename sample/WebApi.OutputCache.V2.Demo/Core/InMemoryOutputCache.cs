@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebApi.OutputCache.V2.Demo.Core
 {
-    public class InMemoryOutputCache : IOutputCache<byte[]>
+    public class InMemoryOutputCache<T> : IOutputCache<T>
     {
         #region Members
 
@@ -28,7 +28,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         #region Interface
 
-        public void Add(string key, byte[] content, DateTimeOffset expiration, string dependsOnKey = null)
+        public void Add(string key, T content, DateTimeOffset expiration, string dependsOnKey = null)
         {
             CacheItemPolicy cachePolicy = new CacheItemPolicy
             {
@@ -48,11 +48,11 @@ namespace WebApi.OutputCache.V2.Demo.Core
             return _memoryCache.Contains(key);
         }
 
-        public Task<byte[]> Get(string key)
+        public Task<T> Get(string key)
         {
             if (Contains(key))
             {
-                return Task.FromResult((byte[]) _memoryCache.Get(key));
+                return Task.FromResult((T) _memoryCache.Get(key));
             }
 
             throw new KeyNotFoundException(key);
