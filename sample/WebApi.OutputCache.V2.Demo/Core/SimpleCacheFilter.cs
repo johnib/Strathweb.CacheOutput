@@ -57,11 +57,21 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// <returns></returns>
         public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
         {
-            string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
-            byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
-            DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
-                _cache.Add(cacheKey, content, cacheExpiration);
+            if (ShouldCacheResponse(actionExecutedContext))
+            {
+                string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
+                byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
+                DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
 
+                _cache.Add(cacheKey, content, cacheExpiration);
+            }
+        }
+
+        private static bool ShouldCacheResponse(HttpActionExecutedContext actionExecutedContext)
+        {
+            return actionExecutedContext.Request.Method == HttpMethod.Get &&
+                   actionExecutedContext.Response.IsSuccessStatusCode &&
+                   actionExecutedContext.Response.Content != null;
         }
 
         private static string GetCacheKey(HttpActionContext actionContext)
