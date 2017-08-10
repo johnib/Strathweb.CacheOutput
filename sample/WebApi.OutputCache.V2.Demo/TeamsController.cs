@@ -20,6 +20,8 @@ namespace WebApi.OutputCache.V2.Demo
             return Teams;
         }
 
+        [Route("api/teams/info")]
+        [SimpleCacheFilter(10)]
         public Team GetById(int id)
         {
             var team = Teams.FirstOrDefault(i => i.Id == id);
