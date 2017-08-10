@@ -13,7 +13,9 @@ namespace WebApi.OutputCache.V2.Demo.Core
 {
     public class SimpleCacheFilter : ActionFilterAttribute
     {
-        private static readonly MediaTypeHeaderValue ContentType = MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+        private static readonly MediaTypeHeaderValue ContentType =
+            MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+
         private static readonly InMemoryOutputCache<byte[]> InMemoryCache = new InMemoryOutputCache<byte[]>();
 
         private readonly TimeSpan _cacheTime;
@@ -55,7 +57,8 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// <param name="actionExecutedContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext, CancellationToken cancellationToken)
+        public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext,
+            CancellationToken cancellationToken)
         {
             if (ShouldCacheResponse(actionExecutedContext))
             {
@@ -90,6 +93,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
         }
 
         private static readonly IEnumerable<string> IgnoreInputParams = new[] {"callback"};
+
         private static IEnumerable<KeyValuePair<string, object>> GetActionInputParams(HttpActionContext actionContext)
         {
             return actionContext.ActionArguments.Where(arg => !IgnoreInputParams.Contains(arg.Key));
