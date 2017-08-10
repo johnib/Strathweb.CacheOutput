@@ -5,25 +5,23 @@ using WebApi.OutputCache.Core.Cache;
 
 namespace WebApi.OutputCache.V2.Demo
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            var config = new HttpSelfHostConfiguration("http://localhost:999");
+            HttpSelfHostConfiguration config = new HttpSelfHostConfiguration("http://localhost:8080");
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute(
-                  name: "DefaultApi",
+                name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
+                defaults: new {id = RouteParameter.Optional}
             );
-            var server = new HttpSelfHostServer(config);
 
+            HttpSelfHostServer server = new HttpSelfHostServer(config);
             config.CacheOutputConfiguration().RegisterCacheOutputProvider(() => new MemoryCacheDefault());
-
             server.OpenAsync().Wait();
 
             Console.ReadKey();
-
             server.CloseAsync().Wait();
         }
     }
