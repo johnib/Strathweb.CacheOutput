@@ -67,7 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IgnoreController.cs" />
-    <Compile Include="SimpleCacheFilter.cs" />
+    <Compile Include="Core\SimpleCacheFilter.cs" />
     <Compile Include="Teams2Controller.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Team.cs" />
