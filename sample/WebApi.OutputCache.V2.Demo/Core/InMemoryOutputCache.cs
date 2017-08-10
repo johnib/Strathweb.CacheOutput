@@ -28,7 +28,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         #region Interface
 
-        public void Add(string key, T content, DateTimeOffset expiration, string dependsOnKey = null)
+        public void Set(string key, T content, DateTimeOffset expiration, string dependsOnKey = null)
         {
             CacheItemPolicy cachePolicy = new CacheItemPolicy
             {
@@ -40,7 +40,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
                 cachePolicy.ChangeMonitors.Add(_memoryCache.CreateCacheEntryChangeMonitor(new[] {dependsOnKey}));
             }
 
-            _memoryCache.Add(key, content, cachePolicy);
+            _memoryCache.Set(key, content, cachePolicy);
         }
 
         public bool Contains(string key)

@@ -13,7 +13,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// <param name="content">The cache payload</param>
         /// <param name="expiration">Absolute expiration timestamp</param>
         /// <param name="dependsOnKey">A key to be depended on for cache invalidation (i.e. sentinel)</param>
-        void Add(string key, T content, DateTimeOffset expiration, string dependsOnKey = null);
+        void Set(string key, T content, DateTimeOffset expiration, string dependsOnKey = null);
 
         /// <summary>
         /// Checks if a cache entry with the provided key exists

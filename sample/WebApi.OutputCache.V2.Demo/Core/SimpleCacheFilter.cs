@@ -66,7 +66,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
                 byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
                 DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
 
-                _cache.Add(cacheKey, content, cacheExpiration);
+                _cache.Set(cacheKey, content, cacheExpiration);
             }
         }
 
