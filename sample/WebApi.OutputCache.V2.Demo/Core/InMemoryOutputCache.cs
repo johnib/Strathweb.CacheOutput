@@ -49,12 +49,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         public T Get(string key)
         {
-            if (Contains(key))
-            {
-                return (T) _memoryCache.Get(key);
-            }
-
-            throw new KeyNotFoundException(key);
+            return (T) _memoryCache.Get(key);
         }
 
         public void Remove(string key)

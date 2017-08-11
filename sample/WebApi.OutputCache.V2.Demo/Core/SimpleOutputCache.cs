@@ -41,9 +41,9 @@ namespace WebApi.OutputCache.V2.Demo.Core
             if (cache == null) return;
 
             string cacheKey = GetCacheKey(actionContext);
-            if (cache.Contains(cacheKey))
+            byte[] cachedResponse;
+            if ((cachedResponse = cache.Get(cacheKey)) != null)
             {
-                byte[] cachedResponse = cache.Get(cacheKey);
                 actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.NotModified);
                 actionContext.Response.Content = new ByteArrayContent(cachedResponse);
                 actionContext.Response.Content.Headers.ContentType = ContentType;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace WebApi.OutputCache.V2.Demo.Core
 {
@@ -23,10 +22,9 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         /// <summary>
         /// Returns the payload of the cache entry of the provided key
-        /// Throws <see cref="KeyNotFoundException"/> if key does not exist
         /// </summary>
         /// <param name="key">The cache key</param>
-        /// <returns></returns>
+        /// <returns>The cache item's payload, or null if key does not exist</returns>
         T Get(string key);
 
         /// <summary>
