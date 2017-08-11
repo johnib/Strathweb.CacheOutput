@@ -9,7 +9,7 @@ namespace WebApi.OutputCache.V2.Demo
     [SimpleOutputCache(Seconds = 15)]
     public class EchoController : ApiController
     {
-        [AcceptVerbs("GET")]
+        [HttpGet]
         [Route("{userId}/{message}")]
         [SimpleOutputCache(Seconds = 3)]
         public async Task<IHttpActionResult> Echo(string userId, string message, string queryString)
@@ -18,7 +18,7 @@ namespace WebApi.OutputCache.V2.Demo
             return Ok(new {Action = "Echo", UserId = userId, Message = message, QueryString = queryString});
         }
 
-        [AcceptVerbs("GET")]
+        [HttpGet]
         [Route("echo2/{userId}/{message}")]
         public async Task<IHttpActionResult> Echo2(string userId, string message, string queryString)
         {
@@ -26,6 +26,7 @@ namespace WebApi.OutputCache.V2.Demo
             return Ok(new {Action = "Echo2", UserId = userId, Message = message, QueryString = queryString});
         }
 
+        [HttpGet]
         [Route("ignore/{userId}/{message}")]
         [IgnoreCache]
         public async Task<IHttpActionResult> EchoIgnore(string userId, string message, string queryString)
