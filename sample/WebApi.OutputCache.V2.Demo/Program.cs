@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Runtime.Caching;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.WebApi;
-using WebApi.OutputCache.V2.Demo.Core;
 
 namespace WebApi.OutputCache.V2.Demo
 {
@@ -14,10 +12,6 @@ namespace WebApi.OutputCache.V2.Demo
         {
             using (var container = new UnityContainer())
             {
-                container.RegisterType<IOutputCache<byte[]>>(
-                    new ContainerControlledLifetimeManager(),
-                    new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
-
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration("http://localhost:8000")
                 {
                     DependencyResolver = new UnityDependencyResolver(container)

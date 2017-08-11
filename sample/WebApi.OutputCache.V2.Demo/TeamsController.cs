@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Web.Http;
 using WebApi.OutputCache.V2.Demo.Core;
 
@@ -25,6 +25,7 @@ namespace WebApi.OutputCache.V2.Demo
         [SimpleCacheFilter(10)]
         public Team GetById(int id)
         {
+            Thread.Sleep(150);
             var team = Teams.FirstOrDefault(i => i.Id == id);
             if (team == null) throw new HttpResponseException(HttpStatusCode.NotFound);
 

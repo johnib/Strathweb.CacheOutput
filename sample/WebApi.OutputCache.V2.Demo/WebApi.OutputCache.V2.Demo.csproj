@@ -100,7 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\UnityConfig.cs" />
-    <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="Core\InMemoryOutputCache.cs" />
     <Compile Include="Core\IOutputCache.cs" />
     <Compile Include="IgnoreController.cs" />
