@@ -65,8 +65,13 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.2.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\StackExchange.Redis.1.2.6\lib\net45\StackExchange.Redis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Net.Http.dll</HintPath>
     </Reference>
@@ -103,6 +108,7 @@
     <Compile Include="Core\IgnoreCache.cs" />
     <Compile Include="Core\InMemoryOutputCache.cs" />
     <Compile Include="Core\IOutputCache.cs" />
+    <Compile Include="Core\RedisOutputCache.cs" />
     <Compile Include="EchoController.cs" />
     <Compile Include="Core\SimpleOutputCache.cs" />
     <Compile Include="Program.cs" />
