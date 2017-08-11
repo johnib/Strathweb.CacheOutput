@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
+using System.Web.Http.Dependencies;
 using System.Web.Http.Filters;
 
 namespace WebApi.OutputCache.V2.Demo.Core
@@ -16,26 +17,21 @@ namespace WebApi.OutputCache.V2.Demo.Core
         private static readonly MediaTypeHeaderValue ContentType =
             MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
 
-        private static readonly InMemoryOutputCache<byte[]> InMemoryCache = new InMemoryOutputCache<byte[]>();
-
         private readonly TimeSpan _cacheTime;
-        private readonly IOutputCache<byte[]> _cache;
 
         public SimpleCacheFilter(TimeSpan cacheTime)
         {
             _cacheTime = cacheTime;
-            _cache = InMemoryCache;
         }
 
         public SimpleCacheFilter(long cacheTimeSeconds) : this(TimeSpan.FromSeconds(cacheTimeSeconds))
         {
         }
 
-        internal SimpleCacheFilter(IOutputCache<byte[]> cache, TimeSpan cacheTime)
-        {
-            _cache = cache;
-            _cacheTime = cacheTime;
-        }
+//        internal SimpleCacheFilter(IOutputCache<byte[]> cache, TimeSpan cacheTime)
+//        {
+//            _cacheTime = cacheTime;
+//        }
 
         /// <summary>
         /// Check if the response is already cached and return response if it does.
@@ -44,11 +40,14 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// <returns></returns>
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            string cacheKey = GetCacheKey(actionContext);
+            // TODO: validate request method is GET
+            IOutputCache<byte[]> cache = ResolveCacheDependency(actionContext);
+            if (cache == null) return;
 
-            if (_cache.Contains(cacheKey))
+            string cacheKey = GetCacheKey(actionContext);
+            if (cache.Contains(cacheKey))
             {
-                byte[] cachedResponse = _cache.Get(cacheKey);
+                byte[] cachedResponse = cache.Get(cacheKey);
                 actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.NotModified);
                 actionContext.Response.Content = new ByteArrayContent(cachedResponse);
                 actionContext.Response.Content.Headers.ContentType = ContentType;
@@ -64,14 +63,23 @@ namespace WebApi.OutputCache.V2.Demo.Core
         public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext,
             CancellationToken cancellationToken)
         {
+            IOutputCache<byte[]> cache = ResolveCacheDependency(actionExecutedContext.ActionContext);
+            if (cache == null) return;
+
             if (ShouldCacheResponse(actionExecutedContext))
             {
                 string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
                 byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
                 DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
 
-                _cache.Set(cacheKey, content, cacheExpiration);
+                cache.Set(cacheKey, content, cacheExpiration);
             }
+        }
+
+        private static IOutputCache<byte[]> ResolveCacheDependency(HttpActionContext context)
+        {
+            IDependencyResolver dependencyResolver = context.ControllerContext.Configuration.DependencyResolver;
+            return dependencyResolver.GetService(typeof(IOutputCache<byte[]>)) as IOutputCache<byte[]>;
         }
 
         private static bool ShouldCacheResponse(HttpActionExecutedContext actionExecutedContext)
