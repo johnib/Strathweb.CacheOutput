@@ -35,10 +35,8 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// Check if the response is already cached and return response if it does.
         /// </summary>
         /// <param name="actionContext"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public override async Task OnActionExecutingAsync(HttpActionContext actionContext,
-            CancellationToken cancellationToken)
+        public override void OnActionExecuting(HttpActionContext actionContext)
         {
             string cacheKey = GetCacheKey(actionContext);
 
