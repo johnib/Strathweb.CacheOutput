@@ -50,12 +50,17 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         public void RemoveDependentsOf(string key)
         {
-            RedisValue[] dependents = _redis.SetMembers($"{DependencySetPrefix}{key}");
+            Remove(key);
 
+            var setKey = $"{DependencySetPrefix}{key}";
+            RedisValue[] dependents = _redis.SetMembers(setKey);
             foreach (var dependentKey in dependents)
             {
                 Remove(dependentKey);
             }
+            
+            // This is the way to remove the whole set
+            _redis.KeyExpire(setKey, TimeSpan.Zero);
         }
     }
 }
