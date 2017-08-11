@@ -2,6 +2,7 @@ using System;
 using Microsoft.Practices.Unity;
 using WebApi.OutputCache.Core.Cache;
 using WebApi.OutputCache.V2.Demo.Core;
+using StackExchange.Redis;
 
 namespace WebApi.OutputCache.V2.Demo.App_Start
 {
@@ -33,9 +34,22 @@ namespace WebApi.OutputCache.V2.Demo.App_Start
         /// change the defaults), as Unity allows resolving a concrete type even if it was not previously registered.</remarks>
         public static void RegisterTypes(IUnityContainer container)
         {
+            //            container.RegisterType<IOutputCache<byte[]>>(
+            //                new ContainerControlledLifetimeManager(),
+            //                new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
+
+
+            const string connectionString =
+                "localhost:6379,password=,ssl=False,abortConnect=False";
+
+            ConfigurationOptions redisConfig = ConfigurationOptions.Parse(connectionString);
+            var connection = ConnectionMultiplexer.Connect(redisConfig);
+            var database = connection.GetDatabase();
+
             container.RegisterType<IOutputCache<byte[]>>(
                 new ContainerControlledLifetimeManager(),
-                new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
+                new InjectionFactory(unityContainer => new RedisOutputCache(connection, database)));
+
             container.RegisterType<IApiOutputCache>(
                 new ContainerControlledLifetimeManager(),
                 new InjectionFactory(unityContainer => new MemoryCacheDefault()));
