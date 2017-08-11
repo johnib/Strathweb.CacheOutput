@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Practices.Unity;
+using WebApi.OutputCache.Core.Cache;
 using WebApi.OutputCache.V2.Demo.Core;
 
 namespace WebApi.OutputCache.V2.Demo.App_Start
@@ -35,6 +36,12 @@ namespace WebApi.OutputCache.V2.Demo.App_Start
             container.RegisterType<IOutputCache<byte[]>>(
                 new ContainerControlledLifetimeManager(),
                 new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
+            container.RegisterType<IApiOutputCache>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionFactory(unityContainer => new MemoryCacheDefault()));
+            container.RegisterType<ICacheKeyGenerator>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionFactory(unityContainer => new DefaultCacheKeyGenerator()));
         }
     }
 }
