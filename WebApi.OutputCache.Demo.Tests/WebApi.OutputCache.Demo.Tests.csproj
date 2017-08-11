@@ -91,7 +91,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="InMemoryOutputCacheTests.cs" />
+    <Compile Include="IOutputCacheInterfaceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisOutputCacheTests.cs" />
     <Compile Include="SimpleCacheFilterTests.cs" />
   </ItemGroup>
   <ItemGroup>
