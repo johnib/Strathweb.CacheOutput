@@ -31,7 +31,7 @@ namespace WebApi.OutputCache.Demo.Tests
             _cacheMock.Setup(c => c.RemoveDependentsOf(It.IsAny<string>()));
             _cacheMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()));
 
-            _filterUnderTest = new SimpleCacheFilter(_cacheMock.Object, TimeSpan.FromMilliseconds(CacheTimeMs));
+//            _filterUnderTest = new SimpleCacheFilter(_cacheMock.Object, TimeSpan.FromMilliseconds(CacheTimeMs));
         }
 
         #endregion
