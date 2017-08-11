@@ -27,6 +27,7 @@ namespace WebApi.OutputCache.V2.Demo
         }
 
         [Route("ignore/{userId}/{message}")]
+        [IgnoreCache]
         public async Task<IHttpActionResult> EchoIgnore(string userId, string message, string queryString)
         {
             await Task.Delay(150);
