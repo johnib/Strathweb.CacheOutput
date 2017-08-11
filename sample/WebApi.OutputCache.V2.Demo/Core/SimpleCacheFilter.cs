@@ -107,7 +107,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         private static IEnumerable<KeyValuePair<string, object>> GetActionInputParams(HttpActionContext actionContext)
         {
-            return actionContext.ActionArguments.Where(arg => !IgnoreInputParams.Contains(arg.Key));
+            return actionContext.ActionArguments.Where(arg => !IgnoreInputParams.Contains(arg.Key)).ToList();
         }
 
         private static DateTimeOffset GetAbsoluteExpiration(TimeSpan cacheTime)
