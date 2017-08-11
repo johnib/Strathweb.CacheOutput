@@ -102,12 +102,9 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="Core\InMemoryOutputCache.cs" />
     <Compile Include="Core\IOutputCache.cs" />
-    <Compile Include="IgnoreController.cs" />
+    <Compile Include="EchoController.cs" />
     <Compile Include="Core\SimpleCacheFilter.cs" />
-    <Compile Include="Teams2Controller.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Team.cs" />
-    <Compile Include="TeamsController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
