@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
-using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.WebApi;
 using WebApi.OutputCache.V2.Demo.App_Start;
 
