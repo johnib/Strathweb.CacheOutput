@@ -12,26 +12,19 @@ using System.Web.Http.Filters;
 
 namespace WebApi.OutputCache.V2.Demo.Core
 {
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class SimpleCacheFilter : ActionFilterAttribute
     {
         private static readonly MediaTypeHeaderValue ContentType =
             MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
 
-        private readonly TimeSpan _cacheTime;
+        public TimeSpan CacheTime => new TimeSpan(Days, Hours, Minutes, Seconds, Milliseconds);
 
-        public SimpleCacheFilter(TimeSpan cacheTime)
-        {
-            _cacheTime = cacheTime;
-        }
-
-        public SimpleCacheFilter(long cacheTimeSeconds) : this(TimeSpan.FromSeconds(cacheTimeSeconds))
-        {
-        }
-
-//        internal SimpleCacheFilter(IOutputCache<byte[]> cache, TimeSpan cacheTime)
-//        {
-//            _cacheTime = cacheTime;
-//        }
+        public int Milliseconds { get; set; } = 0;
+        public int Seconds { get; set; } = 0;
+        public int Minutes { get; set; } = 0;
+        public int Hours { get; set; } = 0;
+        public int Days { get; set; } = 0;
 
         /// <summary>
         /// Check if the response is already cached and return response if it does.
@@ -70,7 +63,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
             {
                 string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
                 byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
-                DateTimeOffset cacheExpiration = GetAbsoluteExpiration(_cacheTime);
+                DateTimeOffset cacheExpiration = GetAbsoluteExpiration(CacheTime);
 
                 cache.Set(cacheKey, content, cacheExpiration);
             }
