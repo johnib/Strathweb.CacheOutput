@@ -31,6 +31,12 @@ namespace WebApi.OutputCache.V2.Demo.Core
         {
         }
 
+        internal SimpleCacheFilter(IOutputCache<byte[]> cache, TimeSpan cacheTime)
+        {
+            _cache = cache;
+            _cacheTime = cacheTime;
+        }
+
         /// <summary>
         /// Check if the response is already cached and return response if it does.
         /// </summary>
