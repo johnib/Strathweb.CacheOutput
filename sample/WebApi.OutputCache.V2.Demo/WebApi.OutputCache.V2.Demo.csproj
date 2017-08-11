@@ -109,6 +109,7 @@
     <Compile Include="Core\InMemoryOutputCache.cs" />
     <Compile Include="Core\IOutputCache.cs" />
     <Compile Include="Core\RedisOutputCache.cs" />
+    <Compile Include="Core\TwoLayerOutputCache.cs" />
     <Compile Include="EchoController.cs" />
     <Compile Include="Core\SimpleOutputCache.cs" />
     <Compile Include="Program.cs" />
