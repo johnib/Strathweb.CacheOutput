@@ -17,12 +17,6 @@ namespace WebApi.OutputCache.V2.Demo
             };
 
             config.MapHttpAttributeRoutes();
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new {id = RouteParameter.Optional}
-            );
-
             HttpSelfHostServer server = new HttpSelfHostServer(config);
             //            config.CacheOutputConfiguration().RegisterCacheOutputProvider(() => new MemoryCacheDefault());
 
