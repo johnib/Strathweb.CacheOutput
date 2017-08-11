@@ -103,7 +103,7 @@
     <Compile Include="Core\InMemoryOutputCache.cs" />
     <Compile Include="Core\IOutputCache.cs" />
     <Compile Include="EchoController.cs" />
-    <Compile Include="Core\SimpleCacheFilter.cs" />
+    <Compile Include="Core\SimpleOutputCache.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

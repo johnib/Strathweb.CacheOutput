@@ -6,12 +6,12 @@ using WebApi.OutputCache.V2.Demo.Core;
 namespace WebApi.OutputCache.V2.Demo
 {
     [RoutePrefix("api/echo")]
-    [SimpleCacheFilter(Seconds = 15)]
+    [SimpleOutputCache(Seconds = 15)]
     public class EchoController : ApiController
     {
         [AcceptVerbs("GET")]
         [Route("{userId}/{message}")]
-        [SimpleCacheFilter(Seconds = 3)]
+        [SimpleOutputCache(Seconds = 3)]
         public async Task<IHttpActionResult> Echo(string userId, string message, string queryString)
         {
             await Task.Delay(150);
@@ -24,6 +24,13 @@ namespace WebApi.OutputCache.V2.Demo
         {
             await Task.Delay(150);
             return Ok(new {Action = "Echo2", UserId = userId, Message = message, QueryString = queryString});
+        }
+
+        [Route("ignore/{userId}/{message}")]
+        public async Task<IHttpActionResult> EchoIgnore(string userId, string message, string queryString)
+        {
+            await Task.Delay(150);
+            return Ok(new {Action = "EchoIgnore", UserId = userId, Message = message, QueryString = queryString});
         }
     }
 }

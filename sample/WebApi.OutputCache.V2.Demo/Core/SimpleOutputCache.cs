@@ -13,7 +13,7 @@ using System.Web.Http.Filters;
 namespace WebApi.OutputCache.V2.Demo.Core
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class SimpleCacheFilter : ActionFilterAttribute
+    public class SimpleOutputCache : ActionFilterAttribute
     {
         private static readonly MediaTypeHeaderValue ContentType =
             MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
@@ -33,6 +33,9 @@ namespace WebApi.OutputCache.V2.Demo.Core
         /// <returns></returns>
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
+            // If action ignores cache return
+            if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
+
             // TODO: validate request method is GET
             IOutputCache<byte[]> cache = ResolveCacheDependency(actionContext);
             if (cache == null) return;
@@ -56,12 +59,17 @@ namespace WebApi.OutputCache.V2.Demo.Core
         public override async Task OnActionExecutedAsync(HttpActionExecutedContext actionExecutedContext,
             CancellationToken cancellationToken)
         {
-            IOutputCache<byte[]> cache = ResolveCacheDependency(actionExecutedContext.ActionContext);
+            HttpActionContext actionContext = actionExecutedContext.ActionContext;
+
+            // If action ignores cache return
+            if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
+
+            IOutputCache<byte[]> cache = ResolveCacheDependency(actionContext);
             if (cache == null) return;
 
             if (ShouldCacheResponse(actionExecutedContext))
             {
-                string cacheKey = GetCacheKey(actionExecutedContext.ActionContext);
+                string cacheKey = GetCacheKey(actionContext);
                 byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
                 DateTimeOffset cacheExpiration = GetAbsoluteExpiration(CacheTime);
 
