@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Text;
 
 namespace WebApi.OutputCache.V2.Demo.Core
 {
-    [Obsolete("With multiple instances, this is just as good as the second layer, as the first layer is not updated with values existing in the secon layer")]
-    //
-    // This implementation won't work. it is as good as the second layer alone as the first layer is not updated of values known by the second layer.
-    // The current IOutputCache interface does not provide enough functionality for making this possible.
-    //
     public class TwoLayerOutputCache : IOutputCache<byte[]>
     {
+        internal const string ExpirationCacheKey = "ts_exp:";
+
         private readonly IOutputCache<byte[]> _firstCache;
         private readonly IOutputCache<byte[]> _secondCache;
 
@@ -22,6 +20,9 @@ namespace WebApi.OutputCache.V2.Demo.Core
         {
             _firstCache.Set(key, content, expiration, dependsOnKey);
             _secondCache.Set(key, content, expiration, dependsOnKey);
+
+            byte[] expirationBytes = Encoding.UTF8.GetBytes(expiration.ToString("o"));
+            _secondCache.Set($"{ExpirationCacheKey}{key}", expirationBytes, expiration, key);
         }
 
         public bool Contains(string key)
@@ -34,11 +35,14 @@ namespace WebApi.OutputCache.V2.Demo.Core
             byte[] result;
             if ((result = _firstCache.Get(key)) == null)
             {
-                result = _secondCache.Get(key);
-                
-                // Should set the first layer with the result - but with what expiration?
-                // Consider creating a new interface, that the Get method also returns the TTL
-                // The new interface should conform to the Try___ convention
+                if ((result = _secondCache.Get(key)) != null)
+                {
+                    // If key is known by second-layer then update the first layer
+                    byte[] expirationBytes = _secondCache.Get($"{ExpirationCacheKey}{key}");
+                    DateTimeOffset expiration = DateTimeOffset.Parse(Encoding.UTF8.GetString(expirationBytes));
+
+                    _firstCache.Set(key, result, expiration);
+                }
             }
 
             return result;
