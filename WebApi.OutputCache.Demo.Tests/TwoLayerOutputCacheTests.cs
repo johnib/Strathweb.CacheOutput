@@ -93,7 +93,8 @@ namespace WebApi.OutputCache.Demo.Tests
 
             DateTimeOffset expirationTime = DateTimeOffset.UtcNow;
             byte[] expirationTimeBytes = Encoding.UTF8.GetBytes(DateTimeOffset.UtcNow.ToString("o"));
-            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCache.ExpirationCacheKey}{DefaultKey}")).Returns(expirationTimeBytes);
+            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCache.ExpirationCacheKey}{DefaultKey}"))
+                .Returns(expirationTimeBytes);
 
             var resultBytes = _cacheUnderTest.Get(DefaultKey);
             var result = Encoding.UTF8.GetString(resultBytes);
@@ -131,6 +132,20 @@ namespace WebApi.OutputCache.Demo.Tests
 
             _firstLayerMock.Verify(c => c.RemoveDependentsOf(DefaultKey), Times.Once());
             _secondLayerMock.Verify(c => c.RemoveDependentsOf(DefaultKey), Times.Once());
+        }
+
+        [TestMethod]
+        public void TestGetWhenGetExpirationReturnsNullThenMainPayloadIsReturnedAndFirstLayerIsNotUpdated()
+        {
+            _firstLayerMock.Setup(c => c.Get(It.IsAny<string>())).Returns((byte[]) null);
+            _secondLayerMock.Setup(c => c.Get(DefaultKey)).Returns(_defaultValueBytes);
+            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCache.ExpirationCacheKey}{DefaultKey}")).Returns((byte[]) null);
+
+            var resultBytes = _cacheUnderTest.Get(DefaultKey);
+            var result = Encoding.UTF8.GetString(resultBytes);
+
+            Assert.AreEqual(DefaultValue, result);
+            _firstLayerMock.Verify(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()), Times.Never());
         }
     }
 }
