@@ -10,7 +10,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
         private readonly IDatabase _redis;
 
         public RedisOutputCache(IConnectionMultiplexer connection, int database = -1)
-            : this(connection, connection.GetDatabase())
+            : this(connection, connection.GetDatabase(database))
         {
         }
 
