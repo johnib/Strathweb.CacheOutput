@@ -16,16 +16,28 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class SimpleOutputCache : ActionFilterAttribute
     {
+        #region Constants
+
         private static readonly MediaTypeHeaderValue ContentType =
             MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
 
+        private static readonly IEnumerable<string> IgnoreInputParams = new[] {"callback"};
+
+        #endregion
+
+        #region Properties
+
         public TimeSpan CacheTime => new TimeSpan(Days, Hours, Minutes, Seconds, Milliseconds);
 
-        public int Milliseconds { get; set; } = 0;
-        public int Seconds { get; set; } = 0;
-        public int Minutes { get; set; } = 0;
-        public int Hours { get; set; } = 0;
-        public int Days { get; set; } = 0;
+        public int Milliseconds { get; set; }
+        public int Seconds { get; set; }
+        public int Minutes { get; set; }
+        public int Hours { get; set; }
+        public int Days { get; set; }
+
+        #endregion
+
+        #region Public
 
         /// <summary>
         /// Check if the response is already cached and return response if it does.
@@ -75,6 +87,10 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             }
         }
 
+        #endregion
+
+        #region Private
+
         private static IOutputCacheProvider<byte[]> ResolveCacheDependency(HttpActionContext context)
         {
             IDependencyResolver dependencyResolver = context.ControllerContext.Configuration.DependencyResolver;
@@ -102,8 +118,6 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             return cacheKey;
         }
 
-        private static readonly IEnumerable<string> IgnoreInputParams = new[] {"callback"};
-
         private static IEnumerable<KeyValuePair<string, object>> GetActionInputParams(HttpActionContext actionContext)
         {
             return actionContext.ActionArguments.Where(arg => !IgnoreInputParams.Contains(arg.Key)).ToList();
@@ -113,5 +127,7 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
         {
             return DateTimeOffset.UtcNow + cacheTime;
         }
+
+        #endregion
     }
 }
