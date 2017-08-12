@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Practices.Unity;
-using WebApi.OutputCache.Core.Cache;
 using WebApi.OutputCache.V2.Demo.Core;
 using StackExchange.Redis;
 
@@ -46,13 +45,24 @@ namespace WebApi.OutputCache.V2.Demo.App_Start
             var connection = ConnectionMultiplexer.Connect(redisConfig);
             var database = connection.GetDatabase();
 
-            container.RegisterType<IOutputCache<byte[]>>(
+            container.RegisterType<RedisOutputCache>(
                 new ContainerControlledLifetimeManager(),
                 new InjectionFactory(unityContainer => new RedisOutputCache(connection, database)));
 
-            container.RegisterType<IApiOutputCache>(
+            container.RegisterType<InMemoryOutputCache<byte[]>>(
                 new ContainerControlledLifetimeManager(),
-                new InjectionFactory(unityContainer => new MemoryCacheDefault()));
+                new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
+
+            container.RegisterType<IOutputCache<byte[]>>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionFactory(unityContainer => new TwoLayerOutputCache(
+                    (IOutputCache<byte[]>) container.Resolve(typeof(InMemoryOutputCache<byte[]>)),
+                    (IOutputCache<byte[]>) container.Resolve(typeof(RedisOutputCache)))));
+
+//            container.RegisterType<MemoryCacheDefault>(
+//                new ContainerControlledLifetimeManager(),
+//                new InjectionFactory(unityContainer => new MemoryCacheDefault()));
+
             container.RegisterType<ICacheKeyGenerator>(
                 new ContainerControlledLifetimeManager(),
                 new InjectionFactory(unityContainer => new DefaultCacheKeyGenerator()));
