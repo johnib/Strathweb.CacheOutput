@@ -28,14 +28,16 @@ namespace WebApi.OutputCache.Demo.Tests
 
         private const string ControllerName = "controller";
         private const string ActionName = "action";
-        private const int CacheTimeMs = 1000;
         private const string DefaultCacheValue = "value";
         private readonly byte[] _defaultValueBytes = Encoding.UTF8.GetBytes(DefaultCacheValue);
+        private readonly TimeSpan _cacheTime = TimeSpan.FromDays(3);
 
         private readonly string _workspaceId = Guid.NewGuid().ToString();
         private readonly string _workflowId = Guid.NewGuid().ToString();
         private readonly string _customizationTimestmap = DateTimeOffset.UtcNow.ToString("o");
         private const int Id = 1;
+
+        private DateTimeOffset _cacheAbsoluteExpirationTimestamp;
 
         #endregion
 
@@ -59,7 +61,9 @@ namespace WebApi.OutputCache.Demo.Tests
             _cacheMock.Setup(c => c.Contains(It.IsAny<string>()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>()));
             _cacheMock.Setup(c => c.RemoveDependentsOf(It.IsAny<string>()));
-            _cacheMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()));
+            _cacheMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
+                .Callback<string, byte[], DateTimeOffset, string>(
+                    (s, bytes, expiration, arg4) => _cacheAbsoluteExpirationTimestamp = expiration);
 
             _diResolver = new Mock<IDependencyResolver>();
             _diResolver.Setup(d => d.GetService(typeof(IOutputCacheProvider<byte[]>))).Returns(_cacheMock.Object);
@@ -72,7 +76,7 @@ namespace WebApi.OutputCache.Demo.Tests
 
             _actionDescriptorMock.SetupGet(a => a.ActionName).Returns(ActionName);
 
-            _filterUnderTest = new SimpleOutputCache {Milliseconds = CacheTimeMs};
+            _filterUnderTest = new SimpleOutputCache {Milliseconds = (int) _cacheTime.TotalMilliseconds};
         }
 
         #endregion
@@ -137,6 +141,17 @@ namespace WebApi.OutputCache.Demo.Tests
             _cacheMock.Verify(c => c.Get(It.IsAny<string>()), Times.Never());
         }
 
+        [TestMethod]
+        public void WhenCacheProviderIsNotAvailableThenActionIsExecuted()
+        {
+            var context = GenerateActionContext();
+            _diResolver.Setup(d => d.GetService(typeof(IOutputCacheProvider<byte[]>))).Returns(null);
+
+            _filterUnderTest.OnActionExecuting(context);
+
+            Assert.IsNull(context.Response);
+        }
+
         #endregion OnActionExecuting Tests
 
         #region OnActionExecuted Tests
@@ -183,11 +198,6 @@ namespace WebApi.OutputCache.Demo.Tests
         }
 
         [TestMethod]
-        public void TestCacheExpirationTimestampIsCorrect()
-        {
-        }
-
-        [TestMethod]
         public async Task WhenActionHasIgnoreCacheAttributeThenValueIsNotCached()
         {
             _actionDescriptorMock
@@ -199,6 +209,15 @@ namespace WebApi.OutputCache.Demo.Tests
             await _filterUnderTest.OnActionExecutedAsync(executedContext, CancellationToken.None);
 
             _cacheMock.Verify(c => c.Get(It.IsAny<string>()), Times.Never());
+        }
+
+        [TestMethod]
+        public async Task WhenCacheProviderIsNotAvailableThenReturnSuccessfully()
+        {
+            var executedContext = GenerateActionExecutedContext();
+            _diResolver.Setup(d => d.GetService(typeof(IOutputCacheProvider<byte[]>))).Returns(null);
+
+            await _filterUnderTest.OnActionExecutedAsync(executedContext, CancellationToken.None);
         }
 
         #endregion OnActionExecuted Tests
@@ -238,6 +257,70 @@ namespace WebApi.OutputCache.Demo.Tests
         }
 
         #endregion Cache Key Tests
+
+        #region Cache Expiration Tests
+
+        [TestMethod]
+        public async Task TestCacheExpirationByMilliseconds()
+        {
+            _filterUnderTest = new SimpleOutputCache {Milliseconds = (int) _cacheTime.TotalMilliseconds};
+            var minExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+            await _filterUnderTest.OnActionExecutedAsync(GenerateActionExecutedContext(), CancellationToken.None);
+            var maxExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp >= minExpirationAllowed);
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp <= maxExpirationAllowed);
+        }
+
+        [TestMethod]
+        public async Task TestCacheExpirationBySeconds()
+        {
+            _filterUnderTest = new SimpleOutputCache {Seconds = (int) _cacheTime.TotalSeconds};
+            var minExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+            await _filterUnderTest.OnActionExecutedAsync(GenerateActionExecutedContext(), CancellationToken.None);
+            var maxExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp >= minExpirationAllowed);
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp <= maxExpirationAllowed);
+        }
+
+        [TestMethod]
+        public async Task TestCacheExpirationByMinutes()
+        {
+            _filterUnderTest = new SimpleOutputCache {Minutes = (int) _cacheTime.TotalMinutes};
+            var minExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+            await _filterUnderTest.OnActionExecutedAsync(GenerateActionExecutedContext(), CancellationToken.None);
+            var maxExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp >= minExpirationAllowed);
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp <= maxExpirationAllowed);
+        }
+
+        [TestMethod]
+        public async Task TestCacheExpirationByHours()
+        {
+            _filterUnderTest = new SimpleOutputCache {Hours = (int) _cacheTime.TotalHours};
+            var minExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+            await _filterUnderTest.OnActionExecutedAsync(GenerateActionExecutedContext(), CancellationToken.None);
+            var maxExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp >= minExpirationAllowed);
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp <= maxExpirationAllowed);
+        }
+
+        [TestMethod]
+        public async Task TestCacheExpirationByDays()
+        {
+            _filterUnderTest = new SimpleOutputCache {Days = (int) _cacheTime.TotalDays};
+            var minExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+            await _filterUnderTest.OnActionExecutedAsync(GenerateActionExecutedContext(), CancellationToken.None);
+            var maxExpirationAllowed = DateTimeOffset.UtcNow + _cacheTime;
+
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp >= minExpirationAllowed);
+            Assert.IsTrue(_cacheAbsoluteExpirationTimestamp <= maxExpirationAllowed);
+        }
+
+        #endregion
 
         #region Private
 

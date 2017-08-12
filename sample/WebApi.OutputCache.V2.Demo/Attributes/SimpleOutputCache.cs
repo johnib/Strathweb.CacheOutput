@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -50,7 +51,11 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             if (actionContext.Request.Method != HttpMethod.Get) return;
 
             IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
-            if (cache == null) return;
+            if (cache == null)
+            {
+                Trace.TraceWarning($"{nameof(SimpleOutputCache)}: no cache provider found, handling request normally");
+                return;
+            }
 
             string cacheKey = GetCacheKey(actionContext);
             byte[] cachedResponse;
@@ -75,7 +80,11 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
 
             IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
-            if (cache == null) return;
+            if (cache == null)
+            {
+                Trace.TraceWarning($"{nameof(SimpleOutputCache)}: no cache provider found, handling request normally");
+                return;
+            }
 
             if (ShouldCacheResponse(actionExecutedContext))
             {
