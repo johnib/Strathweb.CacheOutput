@@ -3,15 +3,16 @@ using Microsoft.Practices.Unity;
 using StackExchange.Redis;
 using WebApi.OutputCache.V2.Demo.CacheProviders;
 
-namespace WebApi.OutputCache.V2.Demo.App_Start
+namespace WebApi.OutputCache.V2.Demo
 {
     /// <summary>
     /// Specifies the Unity configuration for the main container.
     /// </summary>
-    public class UnityConfig
+    public static class UnityConfig
     {
         #region Unity Container
-        private static Lazy<IUnityContainer> container = new Lazy<IUnityContainer>(() =>
+
+        private static readonly Lazy<IUnityContainer> Container = new Lazy<IUnityContainer>(() =>
         {
             var container = new UnityContainer();
             RegisterTypes(container);
@@ -23,8 +24,9 @@ namespace WebApi.OutputCache.V2.Demo.App_Start
         /// </summary>
         public static IUnityContainer GetConfiguredContainer()
         {
-            return container.Value;
+            return Container.Value;
         }
+
         #endregion
 
         /// <summary>Registers the type mappings with the Unity container.</summary>
