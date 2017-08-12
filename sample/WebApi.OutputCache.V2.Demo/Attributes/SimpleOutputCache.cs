@@ -34,10 +34,9 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
         /// <returns></returns>
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            // If action ignores cache return
             if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
+            if (actionContext.Request.Method != HttpMethod.Get) return;
 
-            // TODO: validate request method is GET
             IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
             if (cache == null) return;
 
@@ -61,8 +60,6 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             CancellationToken cancellationToken)
         {
             HttpActionContext actionContext = actionExecutedContext.ActionContext;
-
-            // If action ignores cache return
             if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
 
             IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
