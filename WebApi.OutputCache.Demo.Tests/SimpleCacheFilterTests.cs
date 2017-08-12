@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -15,21 +18,35 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using WebApi.OutputCache.V2.Demo.Attributes;
 using WebApi.OutputCache.V2.Demo.CacheProviders;
+using Match = System.Text.RegularExpressions.Match;
 
 namespace WebApi.OutputCache.Demo.Tests
 {
     [TestClass]
     public class SimpleCacheFilterTests
     {
+        #region Constants
+
         private const string ControllerName = "controller";
         private const string ActionName = "action";
         private const int CacheTimeMs = 1000;
         private const string DefaultCacheValue = "value";
         private readonly byte[] _defaultValueBytes = Encoding.UTF8.GetBytes(DefaultCacheValue);
 
+        private readonly string WorkspaceId = Guid.NewGuid().ToString();
+        private readonly string WorkflowId = Guid.NewGuid().ToString();
+        private readonly string CustomizationTimestmap = DateTimeOffset.UtcNow.ToString("o");
+        private readonly int Id = 1;
+
+        #endregion
+
+        #region Mocks
+
         private Mock<IOutputCacheProvider<byte[]>> _cacheMock;
         private Mock<IDependencyResolver> _diResolver;
         private Mock<ReflectedHttpActionDescriptor> _actionDescriptorMock;
+
+        #endregion
 
         private ActionFilterAttribute _filterUnderTest;
 
@@ -43,8 +60,7 @@ namespace WebApi.OutputCache.Demo.Tests
             _cacheMock.Setup(c => c.Contains(It.IsAny<string>()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>()));
             _cacheMock.Setup(c => c.RemoveDependentsOf(It.IsAny<string>()));
-            _cacheMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(),
-                It.IsAny<string>()));
+            _cacheMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()));
 
             _diResolver = new Mock<IDependencyResolver>();
             _diResolver.Setup(d => d.GetService(typeof(IOutputCacheProvider<byte[]>))).Returns(_cacheMock.Object);
@@ -54,6 +70,8 @@ namespace WebApi.OutputCache.Demo.Tests
             _actionDescriptorMock
                 .Setup(r => r.GetCustomAttributes<IgnoreCache>())
                 .Returns(new Collection<IgnoreCache>());
+
+            _actionDescriptorMock.SetupGet(a => a.ActionName).Returns(ActionName);
 
             _filterUnderTest = new SimpleOutputCache {Milliseconds = CacheTimeMs};
         }
@@ -170,18 +188,54 @@ namespace WebApi.OutputCache.Demo.Tests
         {
         }
 
+        [TestMethod]
+        public async Task WhenActionHasIgnoreCacheAttributeThenValueIsNotCached()
+        {
+            _actionDescriptorMock
+                .Setup(r => r.GetCustomAttributes<IgnoreCache>())
+                .Returns(new Collection<IgnoreCache> { new IgnoreCache() });
+
+            var executedContext = GenerateActionExecutedContext(HttpMethod.Get, HttpStatusCode.OK, new byte[0]);
+
+            await _filterUnderTest.OnActionExecutedAsync(executedContext, CancellationToken.None);
+
+            _cacheMock.Verify(c => c.Get(It.IsAny<string>()), Times.Never());
+        }
+
         #endregion OnActionExecuted Tests
 
         #region Cache Key Tests
 
         [TestMethod]
-        public void TestCacheKeyContainsAllInputParamsSorted()
+        public async Task TestCacheKeyIsGeneratedCorrectly()
         {
-        }
+            Regex regex = new Regex("^(?<controller>[a-zA-Z0-9]+)-(?<action>[a-zA-Z0-9]+)-(?<params>.*)$");
 
-        [TestMethod]
-        public void TestCacheKeyDoesNotContainCallbackParam()
-        {
+            string cacheKey = null;
+            _cacheMock
+                .Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
+                .Callback<string, byte[], DateTimeOffset, string>((s, bytes, arg3, arg4) =>
+                {
+                    cacheKey = s;
+                });
+
+            var executedContext = GenerateActionExecutedContext();
+
+            await _filterUnderTest.OnActionExecutedAsync(executedContext, CancellationToken.None);
+
+            Match match = regex.Match(cacheKey);
+
+            Assert.IsTrue(match.Success);
+            Assert.AreEqual(ControllerName, match.Groups["controller"].Value);
+            Assert.AreEqual(ActionName, match.Groups["action"].Value);
+
+            var inputParams = match.Groups["params"].Value;
+            var expectedInputParams = string.Join(";", executedContext.ActionContext.ActionArguments
+                .Where(kv => kv.Key != "callback")
+                .OrderBy(kv => kv.Key)
+                .Select(kv => $"{kv.Key}={kv.Value}"));
+
+            Assert.AreEqual(expectedInputParams, inputParams);
         }
 
         #endregion Cache Key Tests
@@ -201,7 +255,14 @@ namespace WebApi.OutputCache.Demo.Tests
             return new HttpActionContext
             {
                 ActionDescriptor = _actionDescriptorMock.Object,
-                ActionArguments = { },
+                ActionArguments =
+                {
+                    {"workspaceId", WorkspaceId},
+                    {"workflowId", WorkflowId},
+                    {"CustomizationTimestamp", CustomizationTimestmap},
+                    {"id", Id},
+                    {"callback", "someValue"},
+                },
                 ControllerContext = new HttpControllerContext
                 {
                     Request = request,
