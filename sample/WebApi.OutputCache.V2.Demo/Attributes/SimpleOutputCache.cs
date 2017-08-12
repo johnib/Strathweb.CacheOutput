@@ -108,10 +108,16 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
 
         private static bool ShouldCacheResponse(HttpActionExecutedContext actionExecutedContext)
         {
-            return actionExecutedContext.Request.Method == HttpMethod.Get &&
-                   actionExecutedContext.Response.IsSuccessStatusCode &&
-                   actionExecutedContext.Response.Content != null &&
-                   actionExecutedContext.Response.Content.Headers.ContentLength > 0;
+            var response = actionExecutedContext.Response;
+            var mustHave = actionExecutedContext.Request.Method == HttpMethod.Get &&
+                           response.IsSuccessStatusCode &&
+                           response.Content != null;
+
+            // If response.Content is ObjectContent then the content length is unknown at this stage
+            // Thus we do not enforce contentLength > 0
+            return response.Content is ObjectContent
+                ? mustHave
+                : mustHave && response.Content.Headers.ContentLength > 0;
         }
 
         private static string GetCacheKey(HttpActionContext actionContext)
