@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.Caching;
 
-namespace WebApi.OutputCache.V2.Demo.Core
+namespace WebApi.OutputCache.V2.Demo.CacheProviders
 {
-    public class InMemoryOutputCache<T> : IOutputCache<T>
+    public class InMemoryOutputCacheProvider<T> : IOutputCacheProvider<T>
     {
         #region Members
 
@@ -13,11 +13,11 @@ namespace WebApi.OutputCache.V2.Demo.Core
 
         #region Constructors
 
-        public InMemoryOutputCache() : this(MemoryCache.Default)
+        public InMemoryOutputCacheProvider() : this(MemoryCache.Default)
         {
         }
 
-        public InMemoryOutputCache(MemoryCache memoryCache)
+        public InMemoryOutputCacheProvider(MemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }

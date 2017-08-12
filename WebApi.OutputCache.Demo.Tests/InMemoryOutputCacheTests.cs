@@ -1,6 +1,6 @@
 using System.Runtime.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using WebApi.OutputCache.V2.Demo.Core;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
 namespace WebApi.OutputCache.Demo.Tests
 {
@@ -10,7 +10,7 @@ namespace WebApi.OutputCache.Demo.Tests
         [TestInitialize]
         public override void Initialize()
         {
-            CacheUnderTest = new InMemoryOutputCache<byte[]>(new MemoryCache("test"));
+            CacheUnderTest = new InMemoryOutputCacheProvider<byte[]>(new MemoryCache("test"));
         }
     }
 }

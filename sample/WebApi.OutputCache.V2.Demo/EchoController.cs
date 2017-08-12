@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
-using WebApi.OutputCache.V2.Demo.Core;
+using WebApi.OutputCache.V2.Demo.Attributes;
 
 namespace WebApi.OutputCache.V2.Demo
 {

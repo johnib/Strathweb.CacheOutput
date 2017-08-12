@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using WebApi.OutputCache.V2.Demo.Core;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
 namespace WebApi.OutputCache.Demo.Tests
 {
@@ -13,7 +13,7 @@ namespace WebApi.OutputCache.Demo.Tests
         private const string DefaultValue = "value";
         private readonly byte[] _defaultValueBytes = Encoding.UTF8.GetBytes(DefaultValue);
 
-        protected IOutputCache<byte[]> CacheUnderTest;
+        protected IOutputCacheProvider<byte[]> CacheUnderTest;
 
         [TestInitialize]
         public virtual void Initialize()

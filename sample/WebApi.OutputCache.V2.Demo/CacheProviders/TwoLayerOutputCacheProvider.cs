@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Text;
 
-namespace WebApi.OutputCache.V2.Demo.Core
+namespace WebApi.OutputCache.V2.Demo.CacheProviders
 {
-    public class TwoLayerOutputCache : IOutputCache<byte[]>
+    public class TwoLayerOutputCacheProvider : IOutputCacheProvider<byte[]>
     {
         internal const string ExpirationCacheKey = "ts_exp:";
 
-        private readonly IOutputCache<byte[]> _firstCache;
-        private readonly IOutputCache<byte[]> _secondCache;
+        private readonly IOutputCacheProvider<byte[]> _firstCache;
+        private readonly IOutputCacheProvider<byte[]> _secondCache;
 
-        public TwoLayerOutputCache(IOutputCache<byte[]> firstLayer, IOutputCache<byte[]> secondLayer)
+        public TwoLayerOutputCacheProvider(IOutputCacheProvider<byte[]> firstLayer, IOutputCacheProvider<byte[]> secondLayer)
         {
             _firstCache = firstLayer;
             _secondCache = secondLayer;

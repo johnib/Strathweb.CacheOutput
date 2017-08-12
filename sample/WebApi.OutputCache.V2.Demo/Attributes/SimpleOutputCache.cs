@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dependencies;
 using System.Web.Http.Filters;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
-namespace WebApi.OutputCache.V2.Demo.Core
+namespace WebApi.OutputCache.V2.Demo.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class SimpleOutputCache : ActionFilterAttribute
@@ -37,7 +38,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
             if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
 
             // TODO: validate request method is GET
-            IOutputCache<byte[]> cache = ResolveCacheDependency(actionContext);
+            IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
             if (cache == null) return;
 
             string cacheKey = GetCacheKey(actionContext);
@@ -64,7 +65,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
             // If action ignores cache return
             if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
 
-            IOutputCache<byte[]> cache = ResolveCacheDependency(actionContext);
+            IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
             if (cache == null) return;
 
             if (ShouldCacheResponse(actionExecutedContext))
@@ -77,10 +78,10 @@ namespace WebApi.OutputCache.V2.Demo.Core
             }
         }
 
-        private static IOutputCache<byte[]> ResolveCacheDependency(HttpActionContext context)
+        private static IOutputCacheProvider<byte[]> ResolveCacheDependency(HttpActionContext context)
         {
             IDependencyResolver dependencyResolver = context.ControllerContext.Configuration.DependencyResolver;
-            return dependencyResolver.GetService(typeof(IOutputCache<byte[]>)) as IOutputCache<byte[]>;
+            return dependencyResolver.GetService(typeof(IOutputCacheProvider<byte[]>)) as IOutputCacheProvider<byte[]>;
         }
 
         private static bool ShouldCacheResponse(HttpActionExecutedContext actionExecutedContext)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Web.Http.Filters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using WebApi.OutputCache.V2.Demo.Core;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
 namespace WebApi.OutputCache.Demo.Tests
 {
@@ -16,7 +16,7 @@ namespace WebApi.OutputCache.Demo.Tests
 
         private Dictionary<string, object> _actionArguments = new Dictionary<string, object>();
 
-        private Mock<IOutputCache<byte[]>> _cacheMock;
+        private Mock<IOutputCacheProvider<byte[]>> _cacheMock;
         private ActionFilterAttribute _filterUnderTest;
 
         #region Initialize
@@ -24,7 +24,7 @@ namespace WebApi.OutputCache.Demo.Tests
         [TestInitialize]
         public void Initialize()
         {
-            _cacheMock = new Mock<IOutputCache<byte[]>>();
+            _cacheMock = new Mock<IOutputCacheProvider<byte[]>>();
             _cacheMock.Setup(c => c.Get(It.IsAny<string>()));
             _cacheMock.Setup(c => c.Contains(It.IsAny<string>()));
             _cacheMock.Setup(c => c.Remove(It.IsAny<string>()));

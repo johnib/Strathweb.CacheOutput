@@ -1,20 +1,20 @@
 ﻿using System;
 using StackExchange.Redis;
 
-namespace WebApi.OutputCache.V2.Demo.Core
+namespace WebApi.OutputCache.V2.Demo.CacheProviders
 {
-    public class RedisOutputCache : IOutputCache<byte[]>
+    public class RedisOutputCacheProvider : IOutputCacheProvider<byte[]>
     {
         private const string DependencySetPrefix = "set:";
         private readonly IConnectionMultiplexer _multiplexer;
         private readonly IDatabase _redis;
 
-        public RedisOutputCache(IConnectionMultiplexer connection, int database = -1)
+        public RedisOutputCacheProvider(IConnectionMultiplexer connection, int database = -1)
             : this(connection, connection.GetDatabase(database))
         {
         }
 
-        public RedisOutputCache(IConnectionMultiplexer connection, IDatabase database)
+        public RedisOutputCacheProvider(IConnectionMultiplexer connection, IDatabase database)
         {
             _multiplexer = connection;
             _redis = database;

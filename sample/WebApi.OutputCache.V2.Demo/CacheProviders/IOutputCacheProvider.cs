@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace WebApi.OutputCache.V2.Demo.Core
+namespace WebApi.OutputCache.V2.Demo.CacheProviders
 {
-    public interface IOutputCache<T>
+    public interface IOutputCacheProvider<T>
     {
         /// <summary>
         /// Adds a new cache entry to the internal cache

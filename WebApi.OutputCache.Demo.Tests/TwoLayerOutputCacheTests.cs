@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StackExchange.Redis;
-using WebApi.OutputCache.V2.Demo.Core;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
 namespace WebApi.OutputCache.Demo.Tests
 {
@@ -15,8 +15,8 @@ namespace WebApi.OutputCache.Demo.Tests
         private static ConnectionMultiplexer _connection;
         private static IDatabase _database;
 
-        private IOutputCache<byte[]> _firstLayer;
-        private IOutputCache<byte[]> _secondLayer;
+        private IOutputCacheProvider<byte[]> _firstLayer;
+        private IOutputCacheProvider<byte[]> _secondLayer;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
@@ -35,10 +35,10 @@ namespace WebApi.OutputCache.Demo.Tests
         {
             _connection.GetServer(_connection.GetEndPoints().First()).FlushDatabase();
 
-            _firstLayer = new InMemoryOutputCache<byte[]>(new MemoryCache("test"));
-            _secondLayer = new RedisOutputCache(_connection, _database);
+            _firstLayer = new InMemoryOutputCacheProvider<byte[]>(new MemoryCache("test"));
+            _secondLayer = new RedisOutputCacheProvider(_connection, _database);
 
-            CacheUnderTest = new TwoLayerOutputCache(_firstLayer, _secondLayer);
+            CacheUnderTest = new TwoLayerOutputCacheProvider(_firstLayer, _secondLayer);
 
             base.Initialize();
         }
@@ -51,29 +51,29 @@ namespace WebApi.OutputCache.Demo.Tests
         private const string DefaultValue = "value";
         private readonly byte[] _defaultValueBytes = Encoding.UTF8.GetBytes(DefaultValue);
 
-        private Mock<IOutputCache<byte[]>> _firstLayerMock;
-        private Mock<IOutputCache<byte[]>> _secondLayerMock;
+        private Mock<IOutputCacheProvider<byte[]>> _firstLayerMock;
+        private Mock<IOutputCacheProvider<byte[]>> _secondLayerMock;
 
-        private IOutputCache<byte[]> _cacheUnderTest;
+        private IOutputCacheProvider<byte[]> _cacheUnderTest;
 
         [TestInitialize]
         public void Initialize()
         {
-            _firstLayerMock = new Mock<IOutputCache<byte[]>>();
+            _firstLayerMock = new Mock<IOutputCacheProvider<byte[]>>();
             _firstLayerMock.Setup(c => c.Contains(It.IsAny<string>()));
             _firstLayerMock.Setup(c => c.Get(It.IsAny<string>()));
             _firstLayerMock.Setup(c => c.Remove(It.IsAny<string>()));
             _firstLayerMock.Setup(c => c.RemoveDependentsOf(It.IsAny<string>()));
             _firstLayerMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()));
 
-            _secondLayerMock = new Mock<IOutputCache<byte[]>>();
+            _secondLayerMock = new Mock<IOutputCacheProvider<byte[]>>();
             _secondLayerMock.Setup(c => c.Contains(It.IsAny<string>()));
             _secondLayerMock.Setup(c => c.Get(It.IsAny<string>()));
             _secondLayerMock.Setup(c => c.Remove(It.IsAny<string>()));
             _secondLayerMock.Setup(c => c.RemoveDependentsOf(It.IsAny<string>()));
             _secondLayerMock.Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()));
 
-            _cacheUnderTest = new TwoLayerOutputCache(_firstLayerMock.Object, _secondLayerMock.Object);
+            _cacheUnderTest = new TwoLayerOutputCacheProvider(_firstLayerMock.Object, _secondLayerMock.Object);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace WebApi.OutputCache.Demo.Tests
 
             DateTimeOffset expirationTime = DateTimeOffset.UtcNow;
             byte[] expirationTimeBytes = Encoding.UTF8.GetBytes(DateTimeOffset.UtcNow.ToString("o"));
-            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCache.ExpirationCacheKey}{DefaultKey}"))
+            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCacheProvider.ExpirationCacheKey}{DefaultKey}"))
                 .Returns(expirationTimeBytes);
 
             var resultBytes = _cacheUnderTest.Get(DefaultKey);
@@ -113,7 +113,7 @@ namespace WebApi.OutputCache.Demo.Tests
 
             _firstLayerMock.Verify(c => c.Set(DefaultKey, _defaultValueBytes, expiration, null), Times.Once());
             _secondLayerMock.Verify(c => c.Set(DefaultKey, _defaultValueBytes, expiration, null), Times.Once());
-            _secondLayerMock.Verify(c => c.Set($"{TwoLayerOutputCache.ExpirationCacheKey}{DefaultKey}", expirationTimeBytes, expiration, DefaultKey), Times.Once());
+            _secondLayerMock.Verify(c => c.Set($"{TwoLayerOutputCacheProvider.ExpirationCacheKey}{DefaultKey}", expirationTimeBytes, expiration, DefaultKey), Times.Once());
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@ namespace WebApi.OutputCache.Demo.Tests
         {
             _firstLayerMock.Setup(c => c.Get(It.IsAny<string>())).Returns((byte[]) null);
             _secondLayerMock.Setup(c => c.Get(DefaultKey)).Returns(_defaultValueBytes);
-            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCache.ExpirationCacheKey}{DefaultKey}")).Returns((byte[]) null);
+            _secondLayerMock.Setup(c => c.Get($"{TwoLayerOutputCacheProvider.ExpirationCacheKey}{DefaultKey}")).Returns((byte[]) null);
 
             var resultBytes = _cacheUnderTest.Get(DefaultKey);
             var result = Encoding.UTF8.GetString(resultBytes);

@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Practices.Unity;
-using WebApi.OutputCache.V2.Demo.Core;
 using StackExchange.Redis;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
 namespace WebApi.OutputCache.V2.Demo.App_Start
 {
@@ -33,9 +33,9 @@ namespace WebApi.OutputCache.V2.Demo.App_Start
         /// change the defaults), as Unity allows resolving a concrete type even if it was not previously registered.</remarks>
         public static void RegisterTypes(IUnityContainer container)
         {
-            //            container.RegisterType<IOutputCache<byte[]>>(
+            //            container.RegisterType<IOutputCacheProvider<byte[]>>(
             //                new ContainerControlledLifetimeManager(),
-            //                new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
+            //                new InjectionFactory(unityContainer => new InMemoryOutputCacheProvider<byte[]>()));
 
 
             const string connectionString =
@@ -45,19 +45,19 @@ namespace WebApi.OutputCache.V2.Demo.App_Start
             var connection = ConnectionMultiplexer.Connect(redisConfig);
             var database = connection.GetDatabase();
 
-            container.RegisterType<RedisOutputCache>(
+            container.RegisterType<RedisOutputCacheProvider>(
                 new ContainerControlledLifetimeManager(),
-                new InjectionFactory(unityContainer => new RedisOutputCache(connection, database)));
+                new InjectionFactory(unityContainer => new RedisOutputCacheProvider(connection, database)));
 
-            container.RegisterType<InMemoryOutputCache<byte[]>>(
+            container.RegisterType<InMemoryOutputCacheProvider<byte[]>>(
                 new ContainerControlledLifetimeManager(),
-                new InjectionFactory(unityContainer => new InMemoryOutputCache<byte[]>()));
+                new InjectionFactory(unityContainer => new InMemoryOutputCacheProvider<byte[]>()));
 
-            container.RegisterType<IOutputCache<byte[]>>(
+            container.RegisterType<IOutputCacheProvider<byte[]>>(
                 new ContainerControlledLifetimeManager(),
-                new InjectionFactory(unityContainer => new TwoLayerOutputCache(
-                    (IOutputCache<byte[]>) container.Resolve(typeof(InMemoryOutputCache<byte[]>)),
-                    (IOutputCache<byte[]>) container.Resolve(typeof(RedisOutputCache)))));
+                new InjectionFactory(unityContainer => new TwoLayerOutputCacheProvider(
+                    (IOutputCacheProvider<byte[]>) container.Resolve(typeof(InMemoryOutputCacheProvider<byte[]>)),
+                    (IOutputCacheProvider<byte[]>) container.Resolve(typeof(RedisOutputCacheProvider)))));
 
 //            container.RegisterType<MemoryCacheDefault>(
 //                new ContainerControlledLifetimeManager(),

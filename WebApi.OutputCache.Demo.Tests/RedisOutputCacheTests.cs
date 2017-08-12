@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StackExchange.Redis;
-using WebApi.OutputCache.V2.Demo.Core;
+using WebApi.OutputCache.V2.Demo.CacheProviders;
 
 namespace WebApi.OutputCache.Demo.Tests
 {
@@ -27,7 +27,7 @@ namespace WebApi.OutputCache.Demo.Tests
         public override void Initialize()
         {
             _connection.GetServer(_connection.GetEndPoints().First()).FlushDatabase();
-            CacheUnderTest = new RedisOutputCache(_connection, _database);
+            CacheUnderTest = new RedisOutputCacheProvider(_connection, _database);
 
             base.Initialize();
         }

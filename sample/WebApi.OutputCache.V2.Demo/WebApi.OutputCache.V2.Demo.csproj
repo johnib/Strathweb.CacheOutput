@@ -105,13 +105,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\UnityConfig.cs" />
-    <Compile Include="Core\IgnoreCache.cs" />
-    <Compile Include="Core\InMemoryOutputCache.cs" />
-    <Compile Include="Core\IOutputCache.cs" />
-    <Compile Include="Core\RedisOutputCache.cs" />
-    <Compile Include="Core\TwoLayerOutputCache.cs" />
+    <Compile Include="Attributes\IgnoreCache.cs" />
+    <Compile Include="CacheProviders\InMemoryOutputCacheProvider.cs" />
+    <Compile Include="CacheProviders\IOutputCacheProvider.cs" />
+    <Compile Include="CacheProviders\RedisOutputCacheProvider.cs" />
+    <Compile Include="CacheProviders\TwoLayerOutputCacheProvider.cs" />
     <Compile Include="EchoController.cs" />
-    <Compile Include="Core\SimpleOutputCache.cs" />
+    <Compile Include="Attributes\SimpleOutputCache.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
