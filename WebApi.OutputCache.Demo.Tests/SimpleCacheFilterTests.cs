@@ -33,10 +33,10 @@ namespace WebApi.OutputCache.Demo.Tests
         private const string DefaultCacheValue = "value";
         private readonly byte[] _defaultValueBytes = Encoding.UTF8.GetBytes(DefaultCacheValue);
 
-        private readonly string WorkspaceId = Guid.NewGuid().ToString();
-        private readonly string WorkflowId = Guid.NewGuid().ToString();
-        private readonly string CustomizationTimestmap = DateTimeOffset.UtcNow.ToString("o");
-        private readonly int Id = 1;
+        private readonly string _workspaceId = Guid.NewGuid().ToString();
+        private readonly string _workflowId = Guid.NewGuid().ToString();
+        private readonly string _customizationTimestmap = DateTimeOffset.UtcNow.ToString("o");
+        private const int Id = 1;
 
         #endregion
 
@@ -257,9 +257,9 @@ namespace WebApi.OutputCache.Demo.Tests
                 ActionDescriptor = _actionDescriptorMock.Object,
                 ActionArguments =
                 {
-                    {"workspaceId", WorkspaceId},
-                    {"workflowId", WorkflowId},
-                    {"CustomizationTimestamp", CustomizationTimestmap},
+                    {"workspaceId", _workspaceId},
+                    {"workflowId", _workflowId},
+                    {"CustomizationTimestamp", _customizationTimestmap},
                     {"id", Id},
                     {"callback", "someValue"},
                 },
