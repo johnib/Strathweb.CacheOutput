@@ -56,7 +56,7 @@ namespace WebApi.OutputCache.V2.Demo.Core
             RedisValue[] dependents = _redis.SetMembers(setKey);
             foreach (var dependentKey in dependents)
             {
-                Remove(dependentKey);
+                RemoveDependentsOf(dependentKey);
             }
             
             // This is the way to remove the whole set
