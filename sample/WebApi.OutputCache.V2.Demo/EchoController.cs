@@ -33,14 +33,5 @@ namespace WebApi.OutputCache.V2.Demo
             await Task.Delay(150);
             return Ok(new {Action = "EchoIgnore", UserId = userId, Message = message, QueryString = queryString});
         }
-
-        [HttpGet]
-        [Route("outputcache/{userId}/{message}")]
-        [CacheOutput(ServerTimeSpan = 10, ClientTimeSpan = 30)]
-        public async Task<IHttpActionResult> EchoOutputCache(string userId, string message, string queryString)
-        {
-            await Task.Delay(150);
-            return Ok(new {Action = "EchoOutputCache", UserId = userId, Message = message, QueryString = queryString});
-        }
     }
 }
