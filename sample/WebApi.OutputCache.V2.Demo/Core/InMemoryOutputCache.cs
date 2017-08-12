@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Caching;
 
 namespace WebApi.OutputCache.V2.Demo.Core
