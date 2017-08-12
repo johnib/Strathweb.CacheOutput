@@ -101,7 +101,8 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
         {
             return actionExecutedContext.Request.Method == HttpMethod.Get &&
                    actionExecutedContext.Response.IsSuccessStatusCode &&
-                   actionExecutedContext.Response.Content != null;
+                   actionExecutedContext.Response.Content != null &&
+                   actionExecutedContext.Response.Content.Headers.ContentLength > 0;
         }
 
         private static string GetCacheKey(HttpActionContext actionContext)
