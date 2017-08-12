@@ -35,13 +35,18 @@ namespace WebApi.OutputCache.V2.Demo.Core
             byte[] result;
             if ((result = _firstCache.Get(key)) == null)
             {
+                // If key is known by second-layer then update the first layer
                 if ((result = _secondCache.Get(key)) != null)
                 {
-                    // If key is known by second-layer then update the first layer
-                    byte[] expirationBytes = _secondCache.Get($"{ExpirationCacheKey}{key}");
-                    DateTimeOffset expiration = DateTimeOffset.Parse(Encoding.UTF8.GetString(expirationBytes));
+                    byte[] expirationBytes;
 
-                    _firstCache.Set(key, result, expiration);
+                    // On rare cases the expiration cache entry may be deleted
+                    // In that case we just return the cached value, but do not update the first layer
+                    if ((expirationBytes = _secondCache.Get($"{ExpirationCacheKey}{key}")) != null)
+                    {
+                        DateTimeOffset expiration = DateTimeOffset.Parse(Encoding.UTF8.GetString(expirationBytes));
+                        _firstCache.Set(key, result, expiration);
+                    }
                 }
             }
 
