@@ -222,42 +222,6 @@ namespace WebApi.OutputCache.Demo.Tests
 
         #endregion OnActionExecuted Tests
 
-        #region Cache Key Tests
-
-        [TestMethod]
-        public async Task TestCacheKeyIsGeneratedCorrectly()
-        {
-            Regex regex = new Regex("^(?<controller>[a-zA-Z0-9]+)-(?<action>[a-zA-Z0-9]+)-(?<params>.*)$");
-
-            string cacheKey = null;
-            _cacheMock
-                .Setup(c => c.Set(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<DateTimeOffset>(), It.IsAny<string>()))
-                .Callback<string, byte[], DateTimeOffset, string>((s, bytes, arg3, arg4) =>
-                {
-                    cacheKey = s;
-                });
-
-            var executedContext = GenerateActionExecutedContext();
-
-            await _filterUnderTest.OnActionExecutedAsync(executedContext, CancellationToken.None);
-
-            Match match = regex.Match(cacheKey);
-
-            Assert.IsTrue(match.Success);
-            Assert.AreEqual(ControllerName, match.Groups["controller"].Value);
-            Assert.AreEqual(ActionName, match.Groups["action"].Value);
-
-            var inputParams = match.Groups["params"].Value;
-            var expectedInputParams = string.Join(";", executedContext.ActionContext.ActionArguments
-                .Where(kv => kv.Key != "callback")
-                .OrderBy(kv => kv.Key)
-                .Select(kv => $"{kv.Key}={kv.Value}"));
-
-            Assert.AreEqual(expectedInputParams, inputParams);
-        }
-
-        #endregion Cache Key Tests
-
         #region Cache Expiration Tests
 
         [TestMethod]

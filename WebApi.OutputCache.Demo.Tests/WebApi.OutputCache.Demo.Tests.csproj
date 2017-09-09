@@ -91,6 +91,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DefaultCacheKeyGeneratorUnitTests.cs" />
     <Compile Include="InMemoryOutputCacheTests.cs" />
     <Compile Include="IOutputCacheInterfaceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

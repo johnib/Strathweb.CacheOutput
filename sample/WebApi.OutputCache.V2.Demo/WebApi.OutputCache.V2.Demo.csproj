@@ -106,6 +106,8 @@
   <ItemGroup>
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="Attributes\IgnoreCache.cs" />
+    <Compile Include="CacheProviders\DefaultCacheKeyGenerator.cs" />
+    <Compile Include="CacheProviders\ICacheKeyGenerator.cs" />
     <Compile Include="CacheProviders\InMemoryOutputCacheProvider.cs" />
     <Compile Include="CacheProviders\IOutputCacheProvider.cs" />
     <Compile Include="CacheProviders\RedisOutputCacheProvider.cs" />

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -21,8 +20,6 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
 
         private static readonly MediaTypeHeaderValue ContentType =
             MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
-
-        private static readonly IEnumerable<string> IgnoreInputParams = new[] {"callback"};
 
         #endregion
 
@@ -91,7 +88,6 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
                 string cacheKey = GetCacheKey(actionContext);
                 byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
                 DateTimeOffset cacheExpiration = GetAbsoluteExpiration(CacheTime);
-
                 cache.Set(cacheKey, content, cacheExpiration);
             }
         }
@@ -99,6 +95,16 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
         #endregion
 
         #region Private
+
+        private static string GetCacheKey(HttpActionContext actionContext)
+        {
+            IDependencyResolver dependencyResolver = actionContext.ControllerContext.Configuration.DependencyResolver;
+            ICacheKeyGenerator cacheKeyGenerator =
+                dependencyResolver.GetService(typeof(ICacheKeyGenerator)) as ICacheKeyGenerator ??
+                new DefaultCacheKeyGenerator();
+
+             return cacheKeyGenerator.GetCacheKey(actionContext);
+        }
 
         private static IOutputCacheProvider<byte[]> ResolveCacheDependency(HttpActionContext context)
         {
@@ -118,27 +124,6 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             return response.Content is ObjectContent
                 ? mustHave
                 : mustHave && response.Content.Headers.ContentLength > 0;
-        }
-
-        private static string GetCacheKey(HttpActionContext actionContext)
-        {
-            var controllerName = actionContext.ControllerContext.ControllerDescriptor.ControllerName;
-            var actionName = actionContext.ActionDescriptor.ActionName;
-            var queryParams = string.Join(";", GetActionInputParams(actionContext)
-                .Where(kv => kv.Value != null)
-                .OrderBy(kv => kv.Key)
-                .Select(kv => $"{kv.Key}={kv.Value}"));
-
-            var cacheKey = string.Join("-", controllerName, actionName, queryParams);
-
-            return cacheKey;
-        }
-
-        private static IEnumerable<KeyValuePair<string, object>> GetActionInputParams(HttpActionContext actionContext)
-        {
-            return actionContext.ActionArguments
-                .Where(arg => !IgnoreInputParams.Contains(arg.Key))
-                .ToList();
         }
 
         private static DateTimeOffset GetAbsoluteExpiration(TimeSpan cacheTime)
