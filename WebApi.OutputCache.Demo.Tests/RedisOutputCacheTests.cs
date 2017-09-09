@@ -55,5 +55,12 @@ namespace WebApi.OutputCache.Demo.Tests
 
             base.Initialize();
         }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            IServer server = _connection.GetServer(ConnectionString.Split(',')[0]);
+            server.FlushAllDatabases();
+        }
     }
 }
