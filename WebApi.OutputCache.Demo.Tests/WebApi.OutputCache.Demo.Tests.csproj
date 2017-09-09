@@ -95,7 +95,7 @@
     <Compile Include="IOutputCacheInterfaceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisOutputCacheTests.cs" />
-    <Compile Include="SimpleCacheFilterTests.cs" />
+    <Compile Include="SimpleCacheFilterUnitTests.cs" />
     <Compile Include="TwoLayerOutputCacheTests.cs" />
     <Compile Include="TwoLayerOutputCacheUnitTests.cs" />
   </ItemGroup>

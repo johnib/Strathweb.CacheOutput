@@ -22,7 +22,7 @@ using Match = System.Text.RegularExpressions.Match;
 namespace WebApi.OutputCache.Demo.Tests
 {
     [TestClass]
-    public class SimpleCacheFilterTests
+    public class SimpleCacheFilterUnitTests
     {
         #region Constants
 
