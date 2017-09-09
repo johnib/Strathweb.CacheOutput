@@ -97,6 +97,7 @@
     <Compile Include="RedisOutputCacheTests.cs" />
     <Compile Include="SimpleCacheFilterTests.cs" />
     <Compile Include="TwoLayerOutputCacheTests.cs" />
+    <Compile Include="TwoLayerOutputCacheUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\sample\WebApi.OutputCache.V2.Demo\WebApi.OutputCache.V2.Demo.csproj">
