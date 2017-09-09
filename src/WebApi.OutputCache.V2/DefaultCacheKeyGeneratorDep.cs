@@ -7,7 +7,7 @@ using System.Web.Http.Controllers;
 
 namespace WebApi.OutputCache.V2
 {
-    public class DefaultCacheKeyGenerator : ICacheKeyGenerator
+    public class DefaultCacheKeyGeneratorDep : ICacheKeyGeneratorDep
     {
         public virtual string MakeCacheKey(HttpActionContext context, MediaTypeHeaderValue mediaType, bool excludeQueryString = false)
         {

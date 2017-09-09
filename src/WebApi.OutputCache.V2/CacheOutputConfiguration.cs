@@ -23,12 +23,12 @@ namespace WebApi.OutputCache.V2
         }
 
         public void RegisterCacheKeyGeneratorProvider<T>(Func<T> provider)
-            where T: ICacheKeyGenerator
+            where T: ICacheKeyGeneratorDep
         {
             _configuration.Properties.GetOrAdd(typeof (T), x => provider);
         }
 
-        public void RegisterDefaultCacheKeyGeneratorProvider(Func<ICacheKeyGenerator> provider)
+        public void RegisterDefaultCacheKeyGeneratorProvider(Func<ICacheKeyGeneratorDep> provider)
         {
             RegisterCacheKeyGeneratorProvider(provider);
         }
@@ -57,32 +57,32 @@ namespace WebApi.OutputCache.V2
             return string.Format("{0}-{1}", typeof(T).FullName.ToLower(), methodName.ToLower());
         }
 
-        private static ICacheKeyGenerator TryActivateCacheKeyGenerator(Type generatorType)
+        private static ICacheKeyGeneratorDep TryActivateCacheKeyGenerator(Type generatorType)
         {
             var hasEmptyOrDefaultConstructor = 
                 generatorType.GetConstructor(Type.EmptyTypes) != null || 
                 generatorType.GetConstructors(BindingFlags.Instance | BindingFlags.Public)
                 .Any (x => x.GetParameters().All (p => p.IsOptional));
             return hasEmptyOrDefaultConstructor 
-                ? Activator.CreateInstance(generatorType) as ICacheKeyGenerator 
+                ? Activator.CreateInstance(generatorType) as ICacheKeyGeneratorDep 
                 : null;
         }
 
-        public ICacheKeyGenerator GetCacheKeyGenerator(HttpRequestMessage request, Type generatorType)
+        public ICacheKeyGeneratorDep GetCacheKeyGenerator(HttpRequestMessage request, Type generatorType)
         {
-            generatorType = generatorType ?? typeof (ICacheKeyGenerator);
+            generatorType = generatorType ?? typeof (ICacheKeyGeneratorDep);
             object cache;
             _configuration.Properties.TryGetValue(generatorType, out cache);
 
-            var cacheFunc = cache as Func<ICacheKeyGenerator>;
+            var cacheFunc = cache as Func<ICacheKeyGeneratorDep>;
 
             var generator = cacheFunc != null
                 ? cacheFunc()
-                : request.GetDependencyScope().GetService(generatorType) as ICacheKeyGenerator;
+                : request.GetDependencyScope().GetService(generatorType) as ICacheKeyGeneratorDep;
 
             return generator 
                 ?? TryActivateCacheKeyGenerator(generatorType) 
-                ?? new DefaultCacheKeyGenerator();
+                ?? new DefaultCacheKeyGeneratorDep();
         }
 
         public IApiOutputCache GetCacheOutputProvider(HttpRequestMessage request)

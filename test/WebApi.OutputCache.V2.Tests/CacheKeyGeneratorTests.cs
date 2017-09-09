@@ -15,7 +15,7 @@ namespace WebApi.OutputCache.V2.Tests
     [TestFixture]
     class CacheKeyGeneratorTests
     {
-        public class CustomCacheKeyGenerator : ICacheKeyGenerator
+        public class CustomCacheKeyGenerator : ICacheKeyGeneratorDep
         {
             public string MakeCacheKey(HttpActionContext context, MediaTypeHeaderValue mediaType, bool excludeQueryString = false)
             {
@@ -26,7 +26,7 @@ namespace WebApi.OutputCache.V2.Tests
         private HttpServer _server;
         private string _url = "http://www.strathweb.com/api/";
         private Mock<IApiOutputCache> _cache;
-        private Mock<ICacheKeyGenerator> _keyGeneratorA;
+        private Mock<ICacheKeyGeneratorDep> _keyGeneratorA;
         private CustomCacheKeyGenerator _keyGeneratorB;
 
         [SetUp]
@@ -35,14 +35,14 @@ namespace WebApi.OutputCache.V2.Tests
             Thread.CurrentPrincipal = null;
 
             _cache = new Mock<IApiOutputCache>();
-            _keyGeneratorA = new Mock<ICacheKeyGenerator>();
+            _keyGeneratorA = new Mock<ICacheKeyGeneratorDep>();
             _keyGeneratorB = new CustomCacheKeyGenerator();
 
             var conf = new HttpConfiguration();
             var builder = new ContainerBuilder();
             builder.RegisterInstance(_cache.Object);
             // this should become the default cache key generator
-            builder.RegisterInstance(_keyGeneratorA.Object).As<ICacheKeyGenerator>();
+            builder.RegisterInstance(_keyGeneratorA.Object).As<ICacheKeyGeneratorDep>();
             builder.RegisterInstance(_keyGeneratorB);
 
             conf.DependencyResolver = new AutofacWebApiDependencyResolver(builder.Build());

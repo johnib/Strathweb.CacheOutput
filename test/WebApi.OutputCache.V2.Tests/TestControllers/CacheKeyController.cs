@@ -6,7 +6,7 @@ namespace WebApi.OutputCache.V2.Tests.TestControllers
 {
     public class CacheKeyController : ApiController
     {
-        private class UnregisteredCacheKeyGenerator : ICacheKeyGenerator
+        private class UnregisteredCacheKeyGenerator : ICacheKeyGeneratorDep
         {
             public string MakeCacheKey(HttpActionContext context, MediaTypeHeaderValue mediaType, bool excludeQueryString = false)
             {

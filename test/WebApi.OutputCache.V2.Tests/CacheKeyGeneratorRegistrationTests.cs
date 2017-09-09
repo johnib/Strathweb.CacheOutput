@@ -18,7 +18,7 @@ namespace WebApi.OutputCache.V2.Tests
         private HttpServer _server;
         private string _url = "http://www.strathweb.com/api/";
         private Mock<IApiOutputCache> _cache;
-        private Mock<ICacheKeyGenerator> _keyGenerator;
+        private Mock<ICacheKeyGeneratorDep> _keyGenerator;
 
         [SetUp]
         public void init()
@@ -26,7 +26,7 @@ namespace WebApi.OutputCache.V2.Tests
             Thread.CurrentPrincipal = null;
 
             _cache = new Mock<IApiOutputCache>();
-            _keyGenerator = new Mock<ICacheKeyGenerator>();
+            _keyGenerator = new Mock<ICacheKeyGeneratorDep>();
 
             var conf = new HttpConfiguration();
             
@@ -102,7 +102,7 @@ namespace WebApi.OutputCache.V2.Tests
         }
 
         #region Helper classes
-        private class FailCacheKeyGenerator : ICacheKeyGenerator
+        private class FailCacheKeyGenerator : ICacheKeyGeneratorDep
         {
             public string MakeCacheKey(HttpActionContext context, MediaTypeHeaderValue mediaType, bool excludeQueryString = false)
             {
@@ -111,7 +111,7 @@ namespace WebApi.OutputCache.V2.Tests
             }
         }
 
-        public class InternalRegisteredCacheKeyGenerator : ICacheKeyGenerator
+        public class InternalRegisteredCacheKeyGenerator : ICacheKeyGeneratorDep
         {
             private readonly string _key;
 

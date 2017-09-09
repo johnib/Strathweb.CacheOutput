@@ -58,9 +58,9 @@
     <Compile Include="AutoInvalidateCacheOutputAttribute.cs" />
     <Compile Include="BaseCacheAttribute.cs" />
     <Compile Include="CacheOutputConfiguration.cs" />
-    <Compile Include="DefaultCacheKeyGenerator.cs" />
+    <Compile Include="DefaultCacheKeyGeneratorDep.cs" />
     <Compile Include="HttpConfigurationExtensions.cs" />
-    <Compile Include="ICacheKeyGenerator.cs" />
+    <Compile Include="ICacheKeyGeneratorDep.cs" />
     <Compile Include="IgnoreCacheOutputAttribute.cs" />
     <Compile Include="InvalidateCacheOutputAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
