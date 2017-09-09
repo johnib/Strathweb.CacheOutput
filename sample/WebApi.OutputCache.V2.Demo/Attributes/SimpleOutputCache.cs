@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -48,14 +47,9 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             if (actionContext.Request.Method != HttpMethod.Get) return;
 
             IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
-            if (cache == null)
-            {
-                Trace.TraceWarning($"{nameof(SimpleOutputCache)}: no cache provider found, handling request normally");
-                return;
-            }
-
             string cacheKey = GetCacheKey(actionContext);
             byte[] cachedResponse = cache.Get(cacheKey);
+
             if (cachedResponse != null)
             {
                 actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.NotModified);
@@ -76,18 +70,13 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
             HttpActionContext actionContext = actionExecutedContext.ActionContext;
             if (actionContext.ActionDescriptor.GetCustomAttributes<IgnoreCache>().Any()) return;
 
-            IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
-            if (cache == null)
-            {
-                Trace.TraceWarning($"{nameof(SimpleOutputCache)}: no cache provider found, handling request normally");
-                return;
-            }
-
             if (ShouldCacheResponse(actionExecutedContext))
             {
                 string cacheKey = GetCacheKey(actionContext);
                 byte[] content = await actionExecutedContext.Response.Content.ReadAsByteArrayAsync();
                 DateTimeOffset cacheExpiration = GetAbsoluteExpiration(CacheTime);
+
+                IOutputCacheProvider<byte[]> cache = ResolveCacheDependency(actionContext);
                 cache.Set(cacheKey, content, cacheExpiration);
             }
         }
@@ -109,7 +98,8 @@ namespace WebApi.OutputCache.V2.Demo.Attributes
         private static IOutputCacheProvider<byte[]> ResolveCacheDependency(HttpActionContext context)
         {
             IDependencyResolver dependencyResolver = context.ControllerContext.Configuration.DependencyResolver;
-            return dependencyResolver.GetService(typeof(IOutputCacheProvider<byte[]>)) as IOutputCacheProvider<byte[]>;
+            return dependencyResolver.GetService(typeof(IOutputCacheProvider<byte[]>)) as IOutputCacheProvider<byte[]>
+                   ?? new InMemoryOutputCacheProvider<byte[]>();
         }
 
         private static bool ShouldCacheResponse(HttpActionExecutedContext actionExecutedContext)
